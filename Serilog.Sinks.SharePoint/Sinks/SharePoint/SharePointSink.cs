@@ -2,6 +2,7 @@
 using Microsoft.SharePoint.Administration;
 using Serilog.Core;
 using Serilog.Events;
+using Serilog.Formatting;
 
 namespace Serilog.Sinks.SharePoint
 {
@@ -9,12 +10,12 @@ namespace Serilog.Sinks.SharePoint
     {
         protected readonly SPDiagnosticsServiceBase DiagnosticsService;
         protected readonly SPDiagnosticsCategory Category;
-        protected readonly IFormatProvider FormatProvider;
+        protected readonly ITextFormatter TextFormatter;
 
         protected SharePointSink(
             SPDiagnosticsServiceBase diagnosticsService, 
             SPDiagnosticsCategory category,
-            IFormatProvider formatProvider)
+            ITextFormatter textFormatter)
         {
             if (diagnosticsService == null)
                 throw new ArgumentNullException("diagnosticsService");
@@ -23,7 +24,7 @@ namespace Serilog.Sinks.SharePoint
 
             DiagnosticsService = diagnosticsService;
             Category = category;
-            FormatProvider = formatProvider;
+            TextFormatter = textFormatter;
         }
 
         public abstract void Emit(LogEvent logEvent);

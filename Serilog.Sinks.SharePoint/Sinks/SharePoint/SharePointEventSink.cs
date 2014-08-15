@@ -1,7 +1,8 @@
-﻿using System;
+﻿using System.IO;
 using Microsoft.SharePoint.Administration;
 using Serilog.Debugging;
 using Serilog.Events;
+using Serilog.Formatting;
 
 namespace Serilog.Sinks.SharePoint
 {
@@ -10,16 +11,20 @@ namespace Serilog.Sinks.SharePoint
         public SharePointEventSink(
             SPDiagnosticsServiceBase diagnosticsService,
             SPDiagnosticsCategory category,
-            IFormatProvider formatProvider)
-            : base(diagnosticsService, category, formatProvider) {}
+            ITextFormatter textFormatter)
+            : base(diagnosticsService, category, textFormatter) {}
 
         public override void Emit(LogEvent logEvent)
         {
-            DiagnosticsService.WriteEvent(
-                (ushort) logEvent.Level,
-                Category,
-                GetEventSeverityByLogEventLevel(logEvent.Level),
-                logEvent.RenderMessage(FormatProvider));
+            using (var renderSpace = new StringWriter())
+            {
+                TextFormatter.Format(logEvent, renderSpace);
+                DiagnosticsService.WriteEvent(
+                    (ushort) logEvent.Level,
+                    Category,
+                    GetEventSeverityByLogEventLevel(logEvent.Level),
+                    renderSpace.ToString());
+            }
         }
 
         private static EventSeverity GetEventSeverityByLogEventLevel(
