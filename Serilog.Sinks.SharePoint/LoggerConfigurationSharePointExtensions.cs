@@ -10,6 +10,9 @@ namespace Serilog
     public static class LoggerConfigurationSharePointExtensions
     {
         private const string DefaultTemplate = "{Message}{NewLine}{Exception}";
+
+        private static readonly SPDiagnosticsCategory DefaultCategory =
+            new SPDiagnosticsCategory("Serilog", TraceSeverity.Medium, EventSeverity.Information);
         
         public static LoggerConfiguration SharePointTrace(
             this LoggerSinkConfiguration loggerConfiguration,
@@ -25,10 +28,7 @@ namespace Serilog
             return loggerConfiguration.Sink(
                 new SharePointTraceSink(
                     diagnosticsService ?? SPDiagnosticsService.Local,
-                    diagnosticsCategory ?? new SPDiagnosticsCategory(
-                                               "Serilog",
-                                               TraceSeverity.Medium,
-                                               EventSeverity.Information),
+                    diagnosticsCategory ?? DefaultCategory,
                     new MessageTemplateTextFormatter(outputTemplate, formatProvider)),
                 restrictedToMinimumLevel);
         }
@@ -47,10 +47,7 @@ namespace Serilog
             return loggerConfiguration.Sink(
                 new SharePointEventSink(
                     diagnosticsService ?? SPDiagnosticsService.Local,
-                    diagnosticsCategory ?? new SPDiagnosticsCategory(
-                                               "Serilog",
-                                               TraceSeverity.Medium,
-                                               EventSeverity.Information),
+                    diagnosticsCategory ?? DefaultCategory,
                     new MessageTemplateTextFormatter(outputTemplate, formatProvider)),
                 restrictedToMinimumLevel);
         }
